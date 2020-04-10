@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC 
+		"-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" 
+		"http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<!-- Definitions for Tiles documentation   -->
+
+<tiles-definitions>
+	<!-- abstract definition : 다른 definition에서 참조할 설정-->
+	<definition name="template" template="/WEB-INF/view/layout/template.jsp">
+		<put-attribute name="header" value="/WEB-INF/view/layout/header.jsp"></put-attribute>
+	</definition>
+	
+	<!-- owner page template 설정 -->
+	<definition name="template_admin" template="/WEB-INF/view/layout_owner/template.jsp">
+		<put-attribute name="header" value="/WEB-INF/view/layout_owner/header.jsp"></put-attribute>
+		<put-attribute name="menu" value="/WEB-INF/view/layout_owner/side_menu.jsp"></put-attribute>
+		<put-attribute name="footer" value="/WEB-INF/view/layout_owner/footer.jsp"></put-attribute>
+	</definition>
+	
+	<!-- Customer 측 와일드 맵핑 -->
+	<!-- * 이랑 {1}이랑 매칭 -->
+	<!-- 경로가 하나 있는 view name -->
+	<definition name="*.tiles" extends="template">
+		<put-attribute name="body" value="/WEB-INF/view/customer/{1}.jsp"></put-attribute>
+	</definition>
+	
+	<!-- Owner 측 와일드 맵핑 -->
+	<!-- {1}은 무조건 admin -->
+	<definition name="*/*.tiles" extends="template_admin">
+		<put-attribute name="body" value="/WEB-INF/view/{1}/{2}.jsp"></put-attribute>
+	</definition>
+	<definition name="*/*/*.tiles" extends="template_admin">
+		<put-attribute name="body" value="/WEB-INF/view/{1}/{2}/{3}.jsp"></put-attribute>
+	</definition>
+	<definition name="*/*/*/*.tiles" extends="template_admin">
+		<put-attribute name="body" value="/WEB-INF/view/{1}/{2}/{3}/{4}.jsp"></put-attribute>
+	</definition>
+	
+</tiles-definitions>

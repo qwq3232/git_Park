@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+
+<bean name="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource" 
+p:basename="kosta.qorder.validator.message.error_message"></bean>
+<bean name="beanNameVR" class="org.springframework.web.servlet.view.BeanNameViewResolver" p:order="1"></bean>
+<bean name="tilesViewResolver" class="org.springframework.web.servlet.view.tiles3.TilesViewResolver" p:order="2"></bean>
+<bean name="internalResourceVR" class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:order="3"></bean>
+
+<bean name="tilesConfigurer" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+	<property name="definitions">
+		<list>
+			<value>/WEB-INF/config/tiles_config.xml</value>
+		</list>
+	</property>
+</bean>
+
+<bean name="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
+		p:driverClassName="oracle.jdbc.driver.OracleDriver"
+		p:url="jdbc:oracle:thin:@127.0.0.1:1521:XE"
+		p:username="scott"
+		p:password="tiger"
+		p:maxTotal="50"
+		p:initialSize="5"/>
+<bean name="sqlSessionFactoryBean" 
+		class="org.mybatis.spring.SqlSessionFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:configLocation="/WEB-INF/config/mybatis_config.xml"/>
+<bean name="sqlSessionTemplete"
+	class="org.mybatis.spring.SqlSessionTemplate">
+	<constructor-arg><ref bean ="sqlSessionFactoryBean"/></constructor-arg>
+</bean>
+<bean name="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+ 
+<context:component-scan base-package="kosta.qorder.controller,kosta.qorder.dao,kosta.qorder.service,kosta.qorder.validator"></context:component-scan>
+
+<mvc:interceptors>
+ 	<mvc:interceptor>
+ 		<mvc:mapping path="/**/login/**/*"/>
+ 		<bean class="kosta.qorder.intercepter.LoginIntercepter" />
+ 	</mvc:interceptor>
+ 	<mvc:interceptor>
+ 		<mvc:mapping path="/**/admin/**/*"/>
+ 		<bean class="kosta.qorder.intercepter.AdminIntercepter"/>
+ 	</mvc:interceptor>
+ </mvc:interceptors>
+
+<mvc:annotation-driven>
+	<mvc:message-converters> <!-- default로 되지만 response 한글처리를 하기위해 쓴다 -->
+		<bean class="org.springframework.http.converter.StringHttpMessageConverter" c:defaultCharset="UTF-8"/>
+	</mvc:message-converters> <!-- return 값을 Http 응답 데이터로 변환해주는 Bean - HttpMessageConverter -->
+</mvc:annotation-driven>
+
+<mvc:view-controller path="/index.do" view-name="index/login.do"/>
+<mvc:view-controller path="join.do" view-name="index/join.do"/>
+
+<!-- Customer Page -->
+<mvc:view-controller path="login/camera.do" view-name="camera.tiles"/>
+<mvc:view-controller path="login/map.do" view-name="map.tiles"/>
+
+<!-- Admin Page (관리자, 식당Owner -->
+<mvc:view-controller path="login/admin/main.do" view-name="admin/main.tiles"/>
+<mvc:view-controller path="login/admin/createqr.do" view-name="admin/createqr.tiles"/>
+
+</beans>

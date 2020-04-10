@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="reviewMapper">
+
+<resultMap type="review" id="review-constructor-resultmap">
+	<constructor>
+		
+		<idArg column="review_id" javaType="_int" />
+		<arg column="review_description" javaType="string" />
+		<arg column="review_create_date" javaType="date" />
+		<arg column="review_type" javaType="string" />
+		<arg column="item_id" javaType="_int" />
+		<arg column="customer_id" javaType="string" />
+						
+	</constructor>
+</resultMap>
+
+<resultMap type="review" id="review-join-resultmap">
+	
+		<id column="review_id" property="reviewId" />
+		<result column="review_description" property="reviewDescription" />
+		<result column="review_create_date" property="reviewCreateDate" />
+		<result column="review_type" property="reviewType" />
+		<result column="item_id" property="itemId" />
+		<result column="customer_id" property="customerId" />
+		
+		<association property="item" javaType="kosta.qorder.vo.Item">		
+		
+				<id column="item_id" property="itemId"/>
+				<result column="item_name" property="itemName"/>
+				<result column="item_rating" property="itemRating"/>
+				<result column="restaurant_id" property="restaurantId"/>
+		
+		</association>				
+	
+</resultMap>
+
+<sql id="column-sql">
+	review_id, review_description, review_create_date,
+	review_type, item_id, customer_id
+</sql>
+
+<sql id="column-java">
+	#{reviewid},#{reviewDescription},#{reviewCreateDate},
+	#{reviewType},#{itemId},#{customerId}
+</sql>
+
+<sql id="insertcolumn-java">
+	seq_review.nextval,#{reviewDescription},#{reviewCreateDate},
+	#{reviewType},#{itemId},#{customerId}
+</sql>
+
+
+<select id="selectReview" resultMap="review-constructor-resultmap">
+	select
+	<include refid="column-sql" /> from review
+</select>
+
+<select id="selectReviewById" parameterType="int" resultMap="review-constructor-resultmap">
+	select
+	<include refid="column-sql" /> from review
+	where review_id=#{reviewId}
+</select>
+
+<select id="selectReviewByItemId" parameterType="int" resultMap="review-constructor-resultmap">
+	select
+	<include refid="column-sql" /> from review
+	where item_id=#{itemId}
+</select>
+
+<select id="selectReviewsByName" parameterType="string" resultMap="review-constructor-resultmap">
+	select
+	<include refid="column-sql" /> from review
+	where review_name=#{reviewName}
+</select>
+
+<select id="selectReviewPaging" resultMap="review-join-resultmap" parameterType="map"> 
+
+		select r.review_id, r.review_description, r.review_create_date,
+		r.review_type, r.item_id, r.customer_id, i.item_name, i.item_rating, i.restaurant_id
+		from( select ceil(rownum/#{contentPerPage}) page, review_id, review_description, review_create_date,
+		review_type, item_id, customer_id
+		from( select  r.review_id, r.review_description, r.review_create_date,
+		r.review_type, r.item_id, r.customer_id, i.item_name, i.item_rating, i.restaurant_id 
+		from review r, item i where i.restaurant_id = #{restaurantId} and r.item_id = i.item_id order by r.review_id ) ) r, item i 
+		where page = #{pageNo} and i.item_id = r.item_id
+
+</select>
+
+<select id="reviewCountByitemId" parameterType="int" resultType="_int"> select count(i.restaurant_id) from review r, item i where r.item_id = i.item_id and i.restaurant_id = #{restaurantId} </select>
+
+<select id="selectReviewByCustomerId" resultMap="review-constructor-resultmap" parameterType="string">
+	select 
+	<include refid="column-sql"/>
+	from review where customer_id=#{customerId} 
+</select>
+
+<insert id="insertReview" parameterType="review">
+	insert into review (
+	<include refid="column-sql" />
+	)
+	values (
+	<include refid="insertcolumn-java" />
+	)
+</insert>
+
+<delete id="deleteReviewById" parameterType="_int">
+	delete from review where review_id=#{reviewid}
+</delete>
+
+<update id="updateReviewById" parameterType="review">
+	update review 
+	set
+	review_id=#{reviewid},
+	review_description=#{reviewDescription},
+	review_create_date=#{reviewCreateDate},
+	review_type=#{reviewType},
+	item_id=#{itemId},
+	customer_id=#{customerId}
+	where
+	review_id=#{reviewid}
+</update>
+
+</mapper>

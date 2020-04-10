@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="itemMapper">
+	<resultMap type="item" id="item-resultmap">
+		<constructor>
+			<idArg column="item_id" javaType="_int" />
+			<arg column="item_name" javaType="string" />
+			<arg column="item_description" javaType="string" />
+			<arg column="item_price" javaType="_int" />
+			<arg column="item_sort" javaType="string" />
+			<arg column="item_image" javaType="string" />
+			<arg column="item_rating" javaType="_double" />
+			<arg column="item_rating_count" javaType="_int" />
+			<arg column="restaurant_id" javaType="_int" />
+		</constructor>
+	</resultMap>
+	
+	<sql id="column-sql">
+		item_id, item_name, item_description,
+		item_price, item_sort, item_image,
+		item_rating, item_rating_count, restaurant_id
+	</sql>
+
+
+	<sql id="column-java">
+		#{itemId},#{itemName},#{itemDescription},
+		#{itemPrice},#{itemSort},#{itemImage},
+		#{itemRating},#{itemRatingCount},#{restaurantId}
+	</sql>
+
+	<sql id="insertcolumn-java">
+		seq_item.nextval,#{itemName},#{itemDescription},
+		#{itemPrice},#{itemSort},#{itemImage},
+		#{itemRating},#{itemRatingCount},#{restaurantId}
+	</sql>
+
+	<select id="selectItems" resultMap="item-resultmap">
+		select
+		<include refid="column-sql" /> from item
+	</select>
+
+	<select id="selectItemById" parameterType="_int" resultMap="item-resultmap">
+		select
+		<include refid="column-sql" />from item
+		where item_id=#{itemId}
+	</select>
+	
+	<select id="selectItemByRestaurantId" parameterType="_int" resultMap="item-resultmap">
+		select
+		<include refid="column-sql" />from item
+		where restaurant_id=#{restaurantId}
+	</select>
+
+	<select id="selectItemsByName" parameterType="string" resultMap="item-resultmap">
+		select
+		<include refid="column-sql" />from item
+		where item_name=%#{itemName}%
+	</select>
+
+	<select id="selectItemPaging" resultMap="item-resultmap" parameterType="map"> 
+
+		select item_id, item_name, item_description,
+		item_price, item_sort, item_image,
+		item_rating, item_rating_count, restaurant_id
+		from( select ceil(rownum/#{contentPerPage}) page, item_id, item_name, item_description,
+		item_price, item_sort, item_image,
+		item_rating, item_rating_count, restaurant_id 
+		from( select  item_id, item_name, item_description,
+		item_price, item_sort, item_image,
+		item_rating, item_rating_count, restaurant_id 
+		from item where restaurant_id = #{restaurantId} order by item_id ) ) 
+		where page = #{pageNo}
+
+</select>
+
+<select id="itemCountByrestaurantId" parameterType="int" resultType="_int"> select count(item_id) from item where restaurant_id = #{restaurantId} </select>
+	
+
+	<insert id="insertItem" parameterType="item">
+		insert into item (
+		<include refid="column-sql" />
+		)
+		values (
+		<include refid="insertcolumn-java" />
+		)
+	</insert>
+	
+	
+
+	<delete id="deleteItemById" parameterType="_int">
+		delete from item where item_id=#{itemId}
+	</delete>
+
+	<update id="updateItemById" parameterType="item">
+		update item 
+		set
+		item_id=#{itemId},
+		item_name=#{itemName},
+		item_description=#{itemDescription},
+		item_price=#{itemPrice},
+		item_sort=#{itemSort},
+		item_image=#{itemImage},
+		item_rating=#{itemRating},
+		item_rating_count=#{itemRatingCount},
+		restaurant_id=#{restaurantId}
+		where
+		item_id=#{itemId}
+	</update>
+	
+	
+</mapper>	
+
+
+	
+	

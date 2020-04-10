@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration PUBLIC "-//LOG4J//DTD LOG4J//EN" "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd" >
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<!-- Appenders -->
+	<!-- Console에 출력하는 ConsoleAppender를 stdout(name속성)이름으로 등록 -->
+	<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yy-MM-dd HH:mm:ss.SSS} %5p %C [%M :%L] %m%n" />
+		</layout>
+	</appender>
+
+	<!-- 파일에 출력하는 Appender를 등록 -->
+	<appender name="dailyRollingFile" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="qorder.log" /> <!-- c:\\Java\\myLog.log -->
+		<param name="DatePattern" value="'-'yyyyMMdd'.log'" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yy-MM-dd HH:mm:ss.SSS} %5p %C [%M :%L] %m%n" />
+		</layout>
+	</appender>
+
+	<!-- Logger 로깅을 관리하는 Component(Container)
+	root : 
+	- 기본 로거를 등록 
+	- 로그 priority 우선순위 등록
+	- appender등록 
+	-->
+	<logger name="kosta.qorder" additivity="false">
+		<level value="debug"></level>
+		<appender-ref ref="stdout" />
+		<appender-ref ref="dailyRollingFile"/>
+	</logger>
+	<logger name="org.springframework" additivity="false">
+		<level value="warn"/>
+	</logger>
+	<logger name="org.apache.commons.digester.Digester" additivity="false">
+		<level value="warn"/>
+	</logger>
+	<root>
+		<priority value="debug" />
+		<appender-ref ref="stdout" />
+		<appender-ref ref="dailyRollingFile"/>
+	</root>
+</log4j:configuration>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ReceiptMapper">
+
+<sql id="column-sql">
+	receipt_id, receipt_date, receipt_table, receipt_state,
+	customer_id, restaurant_id
+</sql>
+
+<sql id="column-java">
+	#{receiptId},#{receiptDate},#{receiptTable},#{receiptState},
+	#{customerId}, #{restaurantId}
+</sql>
+
+
+<sql id="insertcolumn-java">
+	seq_receipt.nextval,#{receiptDate},#{receiptTable},#{receiptState},
+	#{customerId}, #{restaurantId}
+</sql>
+
+<resultMap type="receipt" id="receipt-resultMap">
+	<constructor>
+		<idArg column="receipt_id" javaType="_int"/>
+		<arg column="receipt_date" javaType="date"/>
+		<arg column="receipt_table" javaType="_int"/>
+		<arg column="receipt_state" javaType="string"/>
+		<arg column="customer_id" javaType="string"/>
+		<arg column="restaurant_id" javaType="_int"/>
+	</constructor>
+</resultMap>
+
+<resultMap type="receipt" id="receipt-resultMap-join" extends="receipt-resultMap">
+	<collection property="list" ofType="orderList" resultMap="orderListMapper.orderList-resultMap"/>
+</resultMap>
+<!-- 전체 식당 조회 -->
+
+<select id="selectReceipt" resultMap="receipt-resultMap">
+
+	select <include refid="column-sql"/> from receipt
+	
+</select>
+
+<!-- 식당 Id 조회 -->
+
+<select id="selectReceiptById" parameterType="_int" resultMap="receipt-resultMap">
+	select <include refid="column-sql"/>
+	from receipt
+	where receipt_id=#{receiptId}
+</select>
+	
+<select id="selectReceiptByCustomerId" parameterType="string" resultMap="receipt-resultMap">
+	select <include refid="column-sql"/>
+	from receipt
+	where customer_id=#{customerId}
+</select>
+
+	<select id="selectReceiptPaging" resultMap="receipt-resultMap" parameterType="map"> 
+
+		select receipt_id, receipt_date, receipt_table, receipt_state,
+	customer_id, restaurant_id
+		from( select ceil(rownum/#{contentPerPage}) page, receipt_id, receipt_date, receipt_table, receipt_state,
+	customer_id, restaurant_id
+		from( select  receipt_id, receipt_date, receipt_table, receipt_state,
+	customer_id, restaurant_id
+		from receipt where restaurant_id = #{restaurantId} order by receipt_id ) ) 
+		where page = #{pageNo}
+
+</select>
+
+<select id="receiptCountByrestaurantId" parameterType="int" resultType="_int"> select count(restaurant_id) from receipt where restaurant_id = #{restaurantId} </select>
+	
+	
+<!-- 식당 등록 태그 -->
+
+<insert id="insertReceipt" parameterType="receipt">
+	insert into receipt (<include refid="column-sql"/>)
+	values (<include refid="insertcolumn-java"/>)
+</insert>
+
+<!-- 식당 삭제 태그 -->
+
+<delete id="deleteReceiptById" parameterType="_int">
+	delete from receipt where receipt_id = #{receiptId}
+</delete>
+
+<update id="updateReceiptById" parameterType="receipt">
+	
+	update receipt set 
+	receipt_date=#{receiptDate},
+	receipt_table=#{receiptTable},
+	receipt_state=#{receiptState},
+	customer_id=#{customerId},
+	restaurant_id=#{restaurantId}
+	where
+	receipt_id=#{receiptId}
+
+</update>
+
+</mapper>

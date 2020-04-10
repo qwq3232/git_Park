@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="customerMapper">
+	
+	<!-- 자주 사용되는 sql 구문 -->
+	
+	<sql id="column-sql">
+		customer_id, customer_password, customer_name, customer_image, customer_mileage, customer_type
+	</sql>
+	<sql id="column-java">
+		#{customerId}, #{customerPassword}, #{customerName},#{customerImage},#{customerMileage},#{customerType}
+	</sql>
+	
+	<!-- Result mapping 선언 -->
+	<resultMap type="customer" id="customer_resultMap">
+		<constructor>
+			<idArg column="customer_id" javaType="string" />
+			<arg column="customer_password" javaType="string" />
+			<arg column="customer_name" javaType="string" />
+			<arg column="customer_image" javaType="string" />
+			<arg column="customer_mileage" javaType="_int" />
+			<arg column="customer_type" javaType="string" />
+		</constructor>
+	</resultMap>
+
+	<!-- mapper문 -->
+	
+	<!-- 유저 등록 -->
+	
+
+	<select id="selectCustomers" resultMap="customer_resultMap">
+		select <include refid="column-sql"/> from customer
+	</select>
+	
+	<!-- id로 유저 검색 -->
+	<select id="selectCustomerById" parameterType="string" resultMap="customer_resultMap">
+		select <include refid="column-sql"/>
+		from customer where customer_id=#{customerId}
+	</select>
+	<select id="selectCustomersByName" parameterType="string" resultMap="customer_resultMap">
+		select <include refid="column-sql"/>
+		from customer where customer_name=%#{customerName}%
+	</select>
+	
+	<insert id="insertCustomer" parameterType="customer">
+		INSERT INTO customer (<include refid="column-sql"/>) 
+		VALUES (<include refid="column-java"/>)
+	</insert>
+	
+	<delete id="deleteCustomerById" parameterType="string">
+		delete from customer where customer_id=#{customerId}
+	</delete>
+	
+	<update id="updateCustomerById" parameterType="customer">
+		update customer set
+		customer_password = #{customerPassword},
+		customer_name = #{customerName},
+		customer_image = #{customerImage},
+		customer_mileage = #{customerMileage},
+		customer_type = #{customerType}
+		where
+		customer_id = #{customerId}
+	</update>
+	
+	
+	
+	
+	
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="orderListMapper">
+
+<sql id="column-sql">
+order_list_id, item_count, item_price,
+item_id, receipt_id
+</sql>
+
+<sql id="column-java">
+#{orderListId}, #{itemCount}, #{itemPrice},
+#{itemId}, #{receiptId}
+</sql>
+
+
+<sql id="insertcolumn-java">
+seq_order_list.nextval, #{itemCount}, #{itemPrice},
+#{itemId}, #{receiptId}
+</sql>
+
+<resultMap type="orderList" id="orderList-resultMap">
+   <constructor>
+      <idArg column="order_list_id" javaType="_int"/>
+      <arg column="item_count" javaType="_int"/>
+      <arg column="item_price" javaType="_int"/>
+      <arg column="item_id" javaType="_int"/>
+      <arg column="receipt_id" javaType="_int"/>
+   </constructor>
+   </resultMap>
+   
+   <insert id="insertOrderList" parameterType="orderList">
+      INSERT INTO order_list (<include refid="column-sql"/>) 
+      VALUES (<include refid="insertcolumn-java"/>)
+   </insert>
+   
+   
+   <delete id="deleteOrderList" parameterType="_int">
+      delete from order_list where order_list_id=#{orderListId}
+   </delete>
+   
+   <update id="updateOrderList" parameterType="orderList">
+      update order_list set
+      order_list_id = #{orderListId},
+      item_count = #{itemCount},
+      item_price = #{itemPrice},
+      item_id = #{itemId},
+      receipt_id = #{receiptId}
+      where
+      order_list_id = #{orderListId}
+   </update>
+
+   <select id="selectOrderListById" parameterType="_int" resultMap="orderList-resultMap">
+      select <include refid="column-sql"/>
+      from order_list where order_list_id=#{orderListId}
+   </select>
+   
+   <select id="selectOrderList" resultMap="orderList-resultMap">
+      select <include refid="column-sql"/> from order_list
+   </select>
+   <select id="selectOrderListbyReceiptId" parameterType="_int" resultMap="orderList-resultMap">
+   		select <include refid="column-sql"/> from order_list
+   		where receipt_id=#{receiptId}
+   </select>
+</mapper>

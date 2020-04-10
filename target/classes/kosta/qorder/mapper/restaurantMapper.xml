@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="restaurantMapper">
+
+<sql id="column-sql">
+restaurant_id,restaurant_name,restaurant_description,
+restaurant_phone,restaurant_address,restaurant_latitude,
+restaurant_longitude,restaurant_image,restaurant_rating,
+restaurant_rating_count,restaurant_mileage_percent,owner_id
+</sql>
+<sql id="column-java">
+#{restaurantId},#{restaurantName},#{restaurantDescription},
+#{restaurantPhone},#{restaurantAddress},#{restaurantLatitude},
+#{restaurantLongitude},#{restaurantImage},#{restaurantRating},
+#{restaurantRatingCount},#{restaurantMileagePercent},#{ownerId}
+</sql>
+<sql id="insertcolumn-java">
+seq_restaurant.nextval,#{restaurantName},#{restaurantDescription},
+#{restaurantPhone},#{restaurantAddress},#{restaurantLatitude},
+#{restaurantLongitude},#{restaurantImage},#{restaurantRating},
+#{restaurantRatingCount},#{restaurantMileagePercent},#{ownerId}
+</sql>
+
+<resultMap type="restaurant" id="restaurant-resultMap">
+	<constructor>
+		<idArg column="restaurant_id" javaType="_int"/>
+		<arg column="restaurant_name" javaType="string"/>
+		<arg column="restaurant_description" javaType="string"/>
+		<arg column="restaurant_phone" javaType="string"/>
+		<arg column="restaurant_address" javaType="string"/>
+		<arg column="restaurant_latitude" javaType="_double"/>
+		<arg column="restaurant_longitude" javaType="_double"/>
+		<arg column="restaurant_image" javaType="string"/>
+		<arg column="restaurant_rating" javaType="_double"/>
+		<arg column="restaurant_rating_count" javaType="_int"/>
+		<arg column="restaurant_mileage_percent" javaType="_int"/>
+		<arg column="owner_id" javaType="string"/>
+	</constructor>
+</resultMap>
+
+
+<select id="selectRestaurants" resultMap="restaurant-resultMap">
+select <include refid="column-sql"/> from restaurant
+</select>
+
+<select id="selectRestaurantById" parameterType="_int" resultMap="restaurant-resultMap">
+select <include refid="column-sql"/> from restaurant
+where restaurant_id=#{restaurantId}
+</select>
+
+<select id="selectRestaurantByOwnerId" parameterType="string" resultMap="restaurant-resultMap">
+select <include refid="column-sql"/> from restaurant
+where owner_id=#{ownerId}
+</select>
+
+<select id="selectRestaurantsByName" parameterType="string" resultMap="restaurant-resultMap">
+select <include refid="column-sql"/> from restaurant
+where restaurant_name=%#{restaurantName}%
+</select>
+
+<select id="selectNameById" parameterType="map" resultMap="restaurant-resultMap">
+
+select <include refid="column-sql"/> from restaurant
+where owner_id=#{ownerId} and restaurant_Id=#{resName}
+
+</select>
+
+<select id="selectRestaurantPaging" resultMap="restaurant-resultMap" parameterType="map"> 
+
+select restaurant_id,restaurant_name,restaurant_description,
+restaurant_phone,restaurant_address,restaurant_latitude,
+restaurant_longitude,restaurant_image,restaurant_rating,
+restaurant_rating_count,restaurant_mileage_percent,owner_id
+from( select ceil(rownum/#{contentPerPage}) page, restaurant_id,restaurant_name,restaurant_description,
+restaurant_phone,restaurant_address,restaurant_latitude,
+restaurant_longitude,restaurant_image,restaurant_rating,
+restaurant_rating_count,restaurant_mileage_percent,owner_id 
+from( select  restaurant_id,restaurant_name,restaurant_description,
+restaurant_phone,restaurant_address,restaurant_latitude,
+restaurant_longitude,restaurant_image,restaurant_rating,
+restaurant_rating_count,restaurant_mileage_percent,owner_id 
+from restaurant where owner_id = #{ownerId} order by restaurant_id ) ) 
+where page = #{pageNo}
+
+</select>
+
+<select id="restaurantCountByrestaurantId" parameterType="string" resultType="_int"> select count(owner_id) from restaurant where owner_id = #{ownerId} </select>
+<insert id="insertRestaurant" parameterType="restaurant">
+insert into restaurant (<include refid="column-sql"/>)
+values (<include refid="insertcolumn-java"/>)
+</insert>
+
+<delete id="deleteRestaurantById" parameterType="_int">
+delete from restaurant where restaurant_id=#{restaurantId}
+</delete>
+
+<update id="updateRestaurantById" parameterType="restaurant">
+update restaurant set 
+restaurant_name=#{restaurantName},
+restaurant_description=#{restaurantDescription},
+restaurant_phone=#{restaurantPhone},
+restaurant_address=#{restaurantAddress},
+restaurant_latitude=#{restaurantLatitude},
+restaurant_longitude=#{restaurantLongitude},
+restaurant_image=#{restaurantImage},
+restaurant_rating=#{restaurantRating},
+restaurant_rating_count=#{restaurantRatingCount},
+restaurant_mileage_percent=#{restaurantMileagePercent},
+owner_id=#{ownerId}
+where
+restaurant_id=#{restaurantId}
+</update>
+
+
+
+<select id="selectbycustomerId" parameterType="string" resultMap="restaurant-resultMap">
+		select <include refid="column-sql"/>
+		from restaurant where owner_id=#{customerId}
+</select>
+
+
+
+</mapper>
